@@ -4,10 +4,57 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>Student Enrollment App</title>
+    <style>
+      <!---->
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <!-- template view placeholders -->
+    <template id = "loginTemplate">
+      <div class="login-form">
+        <h2>UNIVERSITY</h2>
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Sign in</button>
+      </div>
+    </template>
+
+    <template id="mainTemplate">
+      <div class="main-container">
+        <div class="header">
+          <h2>Welcome <span id=userName>Student</span>UNIVERSTIY</h2>
+          <button onclick="logout()">Sign out</button>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick = "showTab('yourCourses')">Your Courses</button>
+          <button class="tab-btn" onclick="showTab('addCourses')">Add Courses</button>
+        </div>
+        <div id="yourCourses">
+          <h3>Your Courses</h3>
+          <table>
+            <thead>
+              <tr><th>Course Name</th><th>Teacher</th><th>Time</th><th>Students Enrolled</th></tr>
+            </thead>
+            <tbody id="yourCoursesBody">
+              <!-- dynamically filled -->
+            </tbody>
+          </table>
+        </div>
+        <div id="addCourses" class="hidden">
+          <h3>Add Courses</h3>
+          <table>
+            <thead>
+              <tr><th>Course Name</th><th>Teacher</th><th>Time</th><th>Students Enrolled</th><th>Aciton</th></tr>
+            </thead>
+            <tbody id="addCoursesBody">
+              <!-- dynamically filled -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
