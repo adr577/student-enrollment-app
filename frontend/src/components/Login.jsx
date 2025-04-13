@@ -1,5 +1,8 @@
-export default function Login(props) {
+import {Link} from "react-router-dom";
+
+export default function Login(props) {    
     return (
+        <>
         <form className="w-[100%] max-w-[320px] flex flex-col gap-[1.2rem] p-[2rem] text-center login-form">
             <h1 className="text-[3.0rem] mb-[1rem]">{props.role}</h1>
             <input type="email" placeholder="Email" required className="focus:outline-none focus:ring-2 focus:ring-blue-400 invalid:focus:ring-red-400" />
@@ -11,7 +14,7 @@ export default function Login(props) {
             </div>
 
             <button type="submit" className="login-btn">LOGIN</button>
-
         </form>
+        </>
     )
 }
