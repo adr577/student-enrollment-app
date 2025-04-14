@@ -1,15 +1,24 @@
-import Login from "../components/Login"
-import teacherImg from "../assets/teacher.png"
+import Login from "../components/Login";
+import teacherImg from "../assets/teacherImage.png";
 
 export default function TeacherLogin() {
     return (
-        <section className="flex min-h-screen bg-[#e5e5e5]">
-            <div className="w-2xl flex items-center justify-center text-[1.5rem]">
-                <img width={350} src={teacherImg} alt="a picture of a teacher" />
+        <section className="flex min-h-screen">
+            {/* Left half with full-size image */}
+            
+
+            {/* Right half with login form */}
+            <div className="w-1/2 rounded-4xl flex items-center justify-center bg-white rounded-r-[2rem] shadow-lg">
+                <Login role="Teacher" />
             </div>
-            <div className="rounded-4xl flex-1 flex items-center justify-center bg-white ">
-                <Login role="Teacher"/>
-            </div> 
+
+            <div className="w-1/2 bg-[#e5e5e5] h-screen">
+                <img
+                    src={teacherImg}
+                    alt="a picture of a teacher"
+                    className="w-full h-full object-cover"
+                />
+            </div>
         </section>
-    )
+    );
 }
