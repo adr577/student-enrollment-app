@@ -2,7 +2,56 @@
 student enrolllment app for Lab 8 in CSE 108
 
 # Backend API
+```python
+class Class(db.Model):
+    __tablename__ = 'class'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    name = db.Column(db.String(80), nullable=False)
+    time = db.Column(db.String(80), nullable=False)
+    students_enrolled = db.Column(db.Integer, nullable=False, default=0)
+    max_students = db.Column(db.Integer, nullable=False)
 
+    def __repr__(self):
+        return f'<Class {self.name}>'
+    
+
+
+
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    username = db.Column(db.Text, unique=True, nullable=False)
+    password_hash = db.Column(db.Text, nullable=False)
+    role = db.Column(db.String(80), nullable=False)
+    # Define the relationship to the Class model
+    
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+enrollment_table = db.Table('enrollment',
+    db.Column('student_id', UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True),
+    db.Column('class_id',UUID(as_uuid=True), db.ForeignKey('class.id'), primary_key=True),
+    db.Column('grade', db.String(80), nullable=True),
+    db.Index('idx_student_id', 'student_id'),
+    db.Index('idx_class_id', 'class_id'),
+)
+
+teaching_table = db.Table('teaching',
+    db.Column('teacher_id', UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True),
+    db.Column('class_id',UUID(as_uuid=True), db.ForeignKey('class.id'), primary_key=True),
+    db.Index('idx_teacher_id', 'teacher_id'),
+    db.Index('idx_teacher_class_id', 'class_id')
+)
+```
 ## API Endpoints
 ### 1. Register
 - **URL**: `/api/register`
