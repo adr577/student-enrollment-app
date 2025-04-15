@@ -56,9 +56,9 @@ student enrolllment app for Lab 8 in CSE 108
             "id": "string",
             "name": "string",
             "teacher": "string",
-            'time': "string",
-            'students_enrolled' : "number",
-            'max_students' : "number",
+            "time": "string",
+            "students_enrolled" : "number",
+            "max_students" : "number",
         }
     ]
 }
@@ -74,10 +74,10 @@ student enrolllment app for Lab 8 in CSE 108
             "id": "string",
             "name": "string",
             "teacher": "string",
-            'time': "string",
-            'students_enrolled' : "number",
-            'max_students' : "number",
-            'grade' : "number" {if student, else null},
+            "time": "string",
+            "students_enrolled" : "number",
+            "max_students" : "number",
+            "grade" : "number" {if student, else null},
         }
     ]
 }
@@ -171,8 +171,8 @@ student enrolllment app for Lab 8 in CSE 108
     "classes": [
         {
             "name": "string",
-            'time': "string",
-            'max_students' : "number",
+            "time": "string",
+            "max_students" : "number",
         }
     ]
 }
