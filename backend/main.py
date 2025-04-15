@@ -2,6 +2,9 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
+from flask_admin import Admin, expose, AdminIndexView
+from flask_admin.contrib.sqla import ModelView
+from wtforms import SelectField
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import text
 
@@ -11,13 +14,12 @@ import os
 
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
-CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+CORS(app, supports_credentials=True)
 #NOTE: Look at the docker compose file for the database connection string. if you are on windows, and can't connect, change 0.0.0.0 to localhost
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@0.0.0.0:5555/mydatabase'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
 app.config['LOGIN_DISABLED'] = False
 # Set a secret key for session management
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -86,6 +88,13 @@ teaching_table = db.Table('teaching',
 )
 
 
+
+
+
+
+
+
+
 def initData():
     teachers = {
         User(username='teacher1', password_hash=generate_password_hash('password1'), role='teacher'),
@@ -122,7 +131,6 @@ def initData():
     db.session.execute(teaching_table.insert().values(teacher_id=teachers[1].id, class_id=classes[1].id))
     db.session.execute(teaching_table.insert().values(teacher_id=teachers[2].id, class_id=classes[2].id))
     db.session.commit()
-
 
 
 
@@ -184,7 +192,7 @@ def logout():
     logout_user()
     return jsonify({'success': True,'message': 'Logged out successfully'}), 200
 
-@app.route('/api/get-classes', methods=['GET'])
+@app.route('/api/get-classes/all', methods=['GET'])
 @login_required
 def get_all_classes():
     if not current_user.is_authenticated:
@@ -484,7 +492,6 @@ def deleteUser(user_id):
     return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 
 @app.route('/api/get-user/<user_id>', methods=['GET'])
-@login_required
 def getUser(user_id):
     if not current_user.is_authenticated:
         return jsonify({'success': False, 'message': 'User not authenticated'}), 401
@@ -498,13 +505,41 @@ def getUser(user_id):
     }}), 200
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    else:
+@app.route('/', methods=['GET', 'POST'])
+def serve():
         return send_from_directory(app.static_folder, 'index.html')
+
+# Initialize admin
+admin = Admin(app, name='Class Enrollment Admin', template_mode='bootstrap4')
+
+class ClassModelView(ModelView):
+        
+    # Add a custom form field
+    form_extra_fields = {
+        'teacher_id': SelectField('Teacher', coerce=str)
+    }
+    
+    def create_form(self):
+        form = super(ClassModelView, self).create_form()
+        teachers = User.query.filter_by(role='teacher').all()
+        form.teacher_id.choices = [(str(t.id), t.username) for t in teachers]
+        return form
+    
+    def on_model_change(self, form, model, is_created):
+        # This runs when a model is created or updated
+        if is_created and form.teacher_id.data:
+            # Add teacher to the class using the association table
+            teacher_id = form.teacher_id.data
+            db.session.flush()  # Make sure model has an ID
+            
+            # Insert into teaching_table
+            db.session.execute(teaching_table.insert().values(
+                teacher_id=teacher_id, 
+                class_id=model.id
+            ))
+# Add views
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ClassModelView(Class, db.session, name='Classes'))
 
 
 if __name__ == '__main__':
