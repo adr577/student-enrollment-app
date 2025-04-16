@@ -491,6 +491,7 @@ def deleteUser(user_id):
     if not user_to_delete:
         return jsonify({'success': False, 'message': 'User not found'}), 404
     # Delete the user
+
     db.session.delete(user_to_delete)
     db.session.commit()
     return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
@@ -534,6 +535,16 @@ class ClassModelView(ModelView):
         'add_students': SelectField('Add Students', coerce=str),
         'remove_students': SelectField('Remove Students', coerce=str)
     }
+
+    def on_model_delete(self, model):
+    # If deleting a class
+        db.session.execute(
+            teaching_table.delete().where(teaching_table.c.class_id == model.id)
+        )
+        db.session.execute(
+            enrollment_table.delete().where(enrollment_table.c.class_id == model.id)
+        )
+        db.session.commit()
     
     def create_form(self):
         form = super(ClassModelView, self).create_form()
@@ -632,6 +643,7 @@ class UserModelView(ModelView):
     # Show these columns in the list view
     column_list = ['username', 'role']
     form_list = ['username']
+    can_delete = True
 
     
     # Default form configuration
@@ -643,6 +655,12 @@ class UserModelView(ModelView):
         'password': PasswordField('Password')
 
     }
+
+    def on_model_delete(self, model):
+        # Clean up enrollment and teaching links before deletion
+        db.session.query(enrollment_table).filter_by(student_id=model.id).delete()
+        db.session.query(teaching_table).filter_by(teacher_id=model.id).delete()
+        db.session.commit()
     
 
     
@@ -650,6 +668,10 @@ class UserModelView(ModelView):
         # Only update password if provided
         if hasattr(form, 'password') and form.password.data:
             model.set_password(form.password.data)
+
+
+    
+
 
 
 
