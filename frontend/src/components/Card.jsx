@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 
 export default function Card({ cls, mode, role }) {
-    const containerStyles = `p-6 w-[20rem] max-h-[10rem] rounded-xl shadow-md transition-all duration-200 ${mode === "light" ? "bg-[#fdfdfdf] text-[#0f0f0f]" : "bg-[#121212] text-white"
-        }`;
+    const containerStyles = `p-6 w-[20rem] max-h-[10rem] rounded-xl shadow-md transition-all duration-200 ${
+        mode === "light"
+            ? "bg-[#fdfdfdf] text-[#0f0f0f]"
+            : "bg-[#121212] text-white"
+    }`;
 
     const labelClass = "font-semibold";
     const valueClass = "font-normal";
@@ -22,14 +25,10 @@ export default function Card({ cls, mode, role }) {
                         →
                     </span>
                 </Link>
-
-
-
             ) : (
-                    <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-rose-500 to-pink-400 text-transparent bg-clip-text">
-                        {cls.name}
-                    </h2>
-
+                <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-rose-500 to-pink-400 text-transparent bg-clip-text">
+                    {cls.name}
+                </h2>
             )}
 
             <div className="space-y-1 text-base leading-relaxed">
@@ -42,6 +41,9 @@ export default function Card({ cls, mode, role }) {
                     <span className={valueClass}>
                         {cls.students_enrolled}/{cls.max_students}
                     </span>
+                </p>
+                <p className={labelClass}>
+                    Grade: <span>{cls.grade ? cls.grade : "N/A"} </span>
                 </p>
             </div>
         </div>

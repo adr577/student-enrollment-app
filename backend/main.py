@@ -15,7 +15,7 @@ import os
 
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
-CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+CORS(app, supports_credentials=True, resources={r"*": {"origins": "*"}})
 #NOTE: Look at the docker compose file for the database connection string. if you are on windows, and can't connect, change 0.0.0.0 to localhost
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@0.0.0.0:5555/mydatabase'
 db = SQLAlchemy(app)
@@ -194,7 +194,7 @@ def logout():
     logout_user()
     return jsonify({'success': True,'message': 'Logged out successfully'}), 200
 
-@app.route('/api/get-classes', methods=['GET'])
+@app.route('/api/get-classes/all', methods=['GET'])
 @login_required
 def get_all_classes():
     if not current_user.is_authenticated:
@@ -241,6 +241,7 @@ def get_classes():
     for cls in classes:
         if current_user.role == 'student':
             enrollment = db.session.query(enrollment_table).filter_by(student_id=current_user.id, class_id=cls.id).first()
+            print('enrollment:', enrollment)
             grade = enrollment.grade if enrollment else None
 
         teacher = db.session.query(User).join(teaching_table).filter(teaching_table.c.class_id == cls.id).first()
@@ -551,8 +552,8 @@ admin.add_view(ClassModelView(Class, db.session, name='Classes'))
 
 if __name__ == '__main__':
     #Build the frontend
-    if not DBUG:
-        os.system('cd ../frontend && npm install && npm run build')
+    
+    os.system('cd ../frontend && npm install && npm run build')
     # Initialize the database
     with app.app_context():
         db.create_all()
@@ -561,6 +562,6 @@ if __name__ == '__main__':
             initData()
     
 
-    app.run(port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5430)
 
 

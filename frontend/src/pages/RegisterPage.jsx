@@ -15,7 +15,7 @@ export default function Register() {
         setSuccess(false);
 
         try {
-            const res = await fetch("http://localhost:5000/api/register", {
+            const res = await fetch("http://localhost:5430/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -70,9 +70,15 @@ export default function Register() {
             </select>
 
             {error && <p className="text-red-600 text-sm">{error}</p>}
-            {success && <p className="text-green-600 text-sm">Account created! Redirecting...</p>}
+            {success && (
+                <p className="text-green-600 text-sm">
+                    Account created! Redirecting...
+                </p>
+            )}
 
-            <button type="submit" className="login-btn">Register</button>
+            <button type="submit" className="login-btn">
+                Register
+            </button>
         </form>
     );
 }

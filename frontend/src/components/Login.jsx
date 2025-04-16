@@ -11,13 +11,12 @@ export default function Login({ role }) {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
 
         try {
-            const res = await fetch("http://localhost:5000/api/login", {
+            const res = await fetch("http://localhost:5430/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -33,9 +32,15 @@ export default function Login({ role }) {
             if (data.success) {
                 // Save to localStorage *only if* 'remember' is checked
                 if (remember) {
-                    localStorage.setItem(`${role.toLowerCase()}_username`, data.username);
+                    localStorage.setItem(
+                        `${role.toLowerCase()}_username`,
+                        data.username
+                    );
                 } else {
-                    sessionStorage.setItem(`${role.toLowerCase()}_username`, data.username);
+                    sessionStorage.setItem(
+                        `${role.toLowerCase()}_username`,
+                        data.username
+                    );
                 }
 
                 if (data.role === "student") navigate("/student");
@@ -50,13 +55,14 @@ export default function Login({ role }) {
     };
 
     useEffect(() => {
-        const savedUsername = localStorage.getItem(`${role.toLowerCase()}_username`);
+        const savedUsername = localStorage.getItem(
+            `${role.toLowerCase()}_username`
+        );
         if (savedUsername) {
             setUsername(savedUsername);
             setRemember(true);
         }
     }, []);
-
 
     return (
         <form
@@ -91,7 +97,6 @@ export default function Login({ role }) {
                 </button>
             </div>
 
-
             <div className="flex items-center gap-2 text-[1rem] justify-start ml-3">
                 <input
                     type="checkbox"
@@ -105,11 +110,7 @@ export default function Login({ role }) {
 
             {error && <p className="text-red-600 text-sm">{error}</p>}
 
-            <button
-                type="submit"
-                className="login-btn"
-                disabled={loading}
-            >
+            <button type="submit" className="login-btn" disabled={loading}>
                 {loading ? "Logging in..." : "LOGIN"}
             </button>
             {/* <p className="text-sm mt-2">
