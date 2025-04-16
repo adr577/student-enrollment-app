@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
 
 export default function Card({ cls, mode, role }) {
-    const containerStyles = `p-6 w-[20rem] max-h-[10rem] rounded-xl shadow-md transition-all duration-200 ${
-        mode === "light"
-            ? "bg-[#fdfdfdf] text-[#0f0f0f]"
-            : "bg-[#121212] text-white"
-    }`;
+    const containerStyles = `p-6 w-[20rem] max-h-[12rem] rounded-xl shadow-md transition-all duration-200 ${mode === "light" ? "bg-[#fdfdfdf] text-[#0f0f0f]" : "bg-[#121212] text-white"
+        }`;
 
     const labelClass = "font-semibold";
     const valueClass = "font-normal";
@@ -31,10 +28,14 @@ export default function Card({ cls, mode, role }) {
                 </h2>
             )}
 
-            <div className="space-y-1 text-base leading-relaxed">
+            <div className="space-y-2 text-base leading-relaxed">
                 <p>
                     <span className={labelClass}>Time:</span>{" "}
                     <span className={valueClass}>{cls.time}</span>
+                </p>
+                <p>
+                    <span className={labelClass}>Instructor:</span>{" "}
+                    <span className={valueClass}>{cls.teacher || "N/A"}</span>
                 </p>
                 <p>
                     <span className={labelClass}>Enrolled:</span>{" "}
