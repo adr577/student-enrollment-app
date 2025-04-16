@@ -5,17 +5,16 @@ import Card from "../components/Card";
 import EnrollCard from "../components/EnrollCard";
 import SignOut from "../components/SignOutBtn";
 import api from "../utils/api"; // axios instance
+import { FaGraduationCap } from "react-icons/fa";
 
-export default function StudentDashboard() {
+
+export default function StudentDashboard({ currentMode, toggleMode}) {
     const [activeTab, setActiveTab] = useState("myCourses");
-    const [currentMode, setCurrentMode] = useState("light");
     const [myClasses, setMyClasses] = useState([]);
     const [allClasses, setAllClasses] = useState([]);
     const [error, setError] = useState("");
+    const username = localStorage.getItem("student_username") || "Student";
 
-    const toggleMode = () => {
-        setCurrentMode(prev => (prev === "light" ? "dark" : "light"));
-    };
 
     useEffect(() => {
         fetchData();
@@ -81,10 +80,10 @@ export default function StudentDashboard() {
                 <SignOut />
             </aside>
 
-            <main className={`flex-1 transition-colors duration-300 ${currentMode === "light" ? "bg-white text-black" : "bg-[#131c29] text-white"}`}>
-                <nav className={`relative w-full flex items-center justify-end p-8 mb-10 shadow-lg ${currentMode === "light" ? "bg-white" : "bg-[#0f0f0f] text-white"}`}>
+            <main className={`flex-1 transition-colors duration-300 ${currentMode === "light" ? "bg-[#F9f9f9] text-black" : "bg-[#1a1a1a] text-[white]"}`}>
+                <nav className={`relative w-full flex items-center justify-end p-8 mb-10 shadow-lg ${currentMode === "light" ? "bg-[#f9f9f9]" : "bg-[#1a1a1a] text-white"}`}>
                     <h3 className="absolute left-1/2 -translate-x-1/2 text-2xl font-semibold">
-                        Welcome back, Student!
+                        Welcome back, {username} !
                     </h3>
                     <ModeToggle currentMode={currentMode} toggleMode={toggleMode} />
                 </nav>
@@ -100,25 +99,33 @@ export default function StudentDashboard() {
                         )
                     ) : (
                         allClasses.length > 0 ? (
-                            allClasses.map((cls) => {
-                                const isEnrolled = myClasses.some((enrolled) => enrolled.id === cls.id);
-                                return (
-                                    <EnrollCard
-                                        key={cls.id}
-                                        cls={cls}
-                                        isEnrolled={isEnrolled}
-                                        onEnroll={handleEnroll}
-                                        onUnenroll={handleUnenroll}
-                                        mode={currentMode}
-                                    />
-                                );
-                            })
+                            <>
+                                                            
+                                <h2 className="text-xl font-semibold mb-4 tracking-wide col-span-full flex items-center gap-2">
+                                        Fall 2025 Courses Available
+                                </h2>
+                                {allClasses.map((cls) => {
+                                    const isEnrolled = myClasses.some((enrolled) => enrolled.id === cls.id);
+                                    return (
+                                        <EnrollCard
+                                            key={cls.id}
+                                            cls={cls}
+                                            isEnrolled={isEnrolled}
+                                            onEnroll={handleEnroll}
+                                            onUnenroll={handleUnenroll}
+                                            mode={currentMode}
+                                        />
+                                    );
+                                })}
+                            </>
                         ) : (
                             <p>No courses available.</p>
                         )
                     )}
+
                     {error && <p className="text-red-500 col-span-full">{error}</p>}
                 </section>
+
             </main>
         </section>
     );

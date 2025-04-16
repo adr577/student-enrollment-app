@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login({ role }) {
     const [username, setUsername] = useState("");
@@ -8,6 +9,8 @@ export default function Login({ role }) {
     const [remember, setRemember] = useState(false);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,6 +31,13 @@ export default function Login({ role }) {
 
             const data = await res.json();
             if (data.success) {
+                // Save to localStorage *only if* 'remember' is checked
+                if (remember) {
+                    localStorage.setItem(`${role.toLowerCase()}_username`, data.username);
+                } else {
+                    sessionStorage.setItem(`${role.toLowerCase()}_username`, data.username);
+                }
+
                 if (data.role === "student") navigate("/student");
                 else if (data.role === "teacher") navigate("/teacher");
             } else {
@@ -38,6 +48,15 @@ export default function Login({ role }) {
             setError("Server error. Try again.");
         }
     };
+
+    useEffect(() => {
+        const savedUsername = localStorage.getItem(`${role.toLowerCase()}_username`);
+        if (savedUsername) {
+            setUsername(savedUsername);
+            setRemember(true);
+        }
+    }, []);
+
 
     return (
         <form
@@ -54,14 +73,24 @@ export default function Login({ role }) {
                 required
                 className="focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
+            <div className="relative">
+                <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black"
+                >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+            </div>
+
 
             <div className="flex items-center gap-2 text-[1rem] justify-start ml-3">
                 <input
@@ -71,7 +100,7 @@ export default function Login({ role }) {
                     checked={remember}
                     onChange={(e) => setRemember(e.target.checked)}
                 />
-                <label htmlFor="remember">Remember my password</label>
+                <label htmlFor="remember">Remember my username</label>
             </div>
 
             {error && <p className="text-red-600 text-sm">{error}</p>}

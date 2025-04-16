@@ -4,10 +4,14 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_cors import CORS
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import text
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from wtforms.fields import SelectField
 
 import uuid
 import bcrypt
 import os
+
 
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
@@ -18,6 +22,10 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+admin = Admin(app, name='Class Enrollment Admin', template_mode='bootstrap4')
+
+
 app.config['LOGIN_DISABLED'] = False
 # Set a secret key for session management
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -175,7 +183,7 @@ def login():
 
         if user and user.check_password(password):
             login_user(user)
-            return jsonify({'success': True, 'message': 'Login successful', 'role': user.role}), 200
+            return jsonify({'success': True, 'message': 'Login successful', 'role': user.role, 'username': user.username}), 200
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
 
 
@@ -306,13 +314,17 @@ def getEnrolledStudents(class_id):
     if not db.session.query(teaching_table).filter_by(teacher_id=current_user.id, class_id=class_id).first():
         return jsonify({'success': False, 'message': 'Not teaching this class'}), 400
     # Get the list of enrolled students
-    enrolled_students = db.session.query(User).join(enrollment_table).filter(enrollment_table.c.class_id == class_id).all()
+    results = db.session.query(User, enrollment_table.c.grade).join(
+        enrollment_table, User.id == enrollment_table.c.student_id
+    ).filter(enrollment_table.c.class_id == class_id).all()
+
     student_list = []
-    for student in enrolled_students:
+    for user, grade in results:
         student_list.append({
-            'id': str(student.id),
-            'username': student.username,
-            'grade': student.grade if student.role == 'teacher' else None  })
+            'id': str(user.id),
+            'username': user.username,
+            'grade': grade
+        })
     return jsonify({'success': True, 'students': student_list}), 200
 
 @app.route('/api/update-grade/<class_id>/<student_id>', methods=['POST'])
@@ -505,6 +517,38 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
 
 
+
+
+class ClassModelView(ModelView):
+        
+    # Add a custom form field
+    form_extra_fields = {
+        'teacher_id': SelectField('Teacher', coerce=str)
+    }
+    
+    def create_form(self):
+        form = super(ClassModelView, self).create_form()
+        teachers = User.query.filter_by(role='teacher').all()
+        form.teacher_id.choices = [(str(t.id), t.username) for t in teachers]
+        return form
+    
+    def on_model_change(self, form, model, is_created):
+        # This runs when a model is created or updated
+        if is_created and form.teacher_id.data:
+            # Add teacher to the class using the association table
+            teacher_id = form.teacher_id.data
+            db.session.flush()  # Make sure model has an ID
+            
+            # Insert into teaching_table
+            db.session.execute(teaching_table.insert().values(
+                teacher_id=teacher_id, 
+                class_id=model.id
+            ))
+# Add views
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ClassModelView(Class, db.session, name='Classes'))
+
+
 if __name__ == '__main__':
     #Build the frontend
     if not DBUG:
@@ -518,3 +562,5 @@ if __name__ == '__main__':
     
 
     app.run(port=5000, debug=True)
+
+
