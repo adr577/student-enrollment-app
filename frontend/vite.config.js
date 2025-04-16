@@ -6,12 +6,10 @@ export default defineConfig({
   base: './', // ← VERY IMPORTANT so paths work when Flask serves it
   plugins: [react(), tailwindcss()],
   server: {
-    historyApiFallback: true
-  },
-  server: {
     proxy: {
       '/api': 'http://localhost:5000', // proxy API calls to Flask
     },
+    historyApiFallback: true
   },
   build: {
     outDir: 'dist', // this is default, but good to be explicit

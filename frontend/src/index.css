@@ -245,7 +245,10 @@ body {
 
 
 .login-btn:hover {
-  opacity: 0.7;
+  color: #0f0f0f;
+  outline: 2px solid #0f0f0f;
+  box-sizing: border-box;
+  background-color: #fff;
 }
 
 

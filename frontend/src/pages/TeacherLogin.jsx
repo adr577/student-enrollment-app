@@ -16,7 +16,7 @@ export default function TeacherLogin() {
             <div className="w-1/2 bg-[#e5e5e5] h-screen">
                 <img
                     src={teacherImg}
-                    alt="a picture of a teacher"
+                    alt="bee hive outline picture"
                     className="w-full h-full object-cover"
                 />
             </div>
