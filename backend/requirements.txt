@@ -25,6 +25,5 @@ somepackage==1.2.3
 SQLAlchemy==1.4.54
 subprocess32==3.5.4
 sympy==1.5.1
-typing==3.10.0.0
 Werkzeug==1.0.1
 zipp==1.2.0
