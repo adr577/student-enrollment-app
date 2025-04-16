@@ -44,9 +44,13 @@ export default function Card({ cls, mode, role }) {
                         {cls.students_enrolled}/{cls.max_students}
                     </span>
                 </p>
-                <p className={labelClass}>
-                    Grade: <span>{cls.grade ? cls.grade : "N/A"} </span>
-                </p>
+                
+                {role.toLowerCase() !== "teacher" && (
+                    <p className={labelClass}>
+                        Grade: <span>{cls.grade ? cls.grade : "N/A"}</span>
+                    </p>
+                )}
+
             </div>
         </div>
     );
