@@ -60,7 +60,7 @@ export default function TeacherCourseDetail({ mode }) {
                 </span>
             </div>
 
-            <h2 className="text-3xl font-bold mb-2">{courseName}</h2>
+            <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">{courseName}</h2>
             <h3 className="text-xl font-medium mb-6">Enrolled Students</h3>
 
             {students.length > 0 ? (

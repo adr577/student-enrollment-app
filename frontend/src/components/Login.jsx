@@ -67,7 +67,7 @@ export default function Login({ role }) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="w-full max-w-[320px] flex flex-col gap-[1.2rem] p-[2rem] text-center login-form"
+            className="w-full px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 lg:px-10 lg:py-12 max-w-sm sm:max-w-md md:max-w-lg flex flex-col gap-6 text-center login-form"
         >
             <h1 className="text-[3.0rem] mb-[1rem]">{role}</h1>
 

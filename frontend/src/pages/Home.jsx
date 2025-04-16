@@ -14,7 +14,7 @@ export default function Home() {
             </p>
             <p className="home-subtitle">Sign in as:</p>
 
-            <div className="button-group">
+            <div className="button-group flex flex-wrap justify-center">
                 <Link to="/login/student">
                     <button className="btn btn-outline">Student</button>
                 </Link>
