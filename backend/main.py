@@ -4,9 +4,10 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_cors import CORS
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import text
-from flask_admin import Admin
+from flask_admin import Admin, expose, BaseView
 from flask_admin.contrib.sqla import ModelView
-from wtforms.fields import SelectField
+from wtforms.fields import SelectField, SelectMultipleField, TextAreaField, PasswordField
+from wtforms.validators import DataRequired, Optional
 
 import uuid
 import bcrypt
@@ -520,33 +521,140 @@ def serve(path):
 
 
 
+
+
+
+
+
 class ClassModelView(ModelView):
         
     # Add a custom form field
     form_extra_fields = {
-        'teacher_id': SelectField('Teacher', coerce=str)
+        'teacher_id': SelectField('Teacher', coerce=str),
+        'add_students': SelectField('Add Students', coerce=str),
+        'remove_students': SelectField('Remove Students', coerce=str)
     }
     
     def create_form(self):
         form = super(ClassModelView, self).create_form()
         teachers = User.query.filter_by(role='teacher').all()
         form.teacher_id.choices = [(str(t.id), t.username) for t in teachers]
+        form.add_students.choices = [('', '-- Cannot Select --')]
+        form.remove_students.choices = [('', '-- Cannot Select --')]
+        return form
+    
+    def edit_form(self, obj=None):
+        form = super(ClassModelView, self).edit_form(obj)
+
+        teachers = User.query.filter_by(role='teacher').all()
+        form.teacher_id.choices = [(str(t.id), t.username) for t in teachers]
+
+        students = User.query.filter_by(role='student').all()
+    
+
+        enrolled_students = db.session.query(enrollment_table).filter_by(class_id=obj.id).all()
+        enrolled_student_ids = [str(es.student_id) for es in enrolled_students]
+        form.add_students.choices = [('', '-- Select Student --')] +[(str(s.id), s.username) for s in students if str(s.id) not in enrolled_student_ids]
+        form.remove_students.choices = [('', '-- Select Student --')] +[(str(s.id), s.username) for s in students if str(s.id) in enrolled_student_ids]
+
+
+      
+
         return form
     
     def on_model_change(self, form, model, is_created):
-        # This runs when a model is created or updated
-        if is_created and form.teacher_id.data:
-            # Add teacher to the class using the association table
+    # Handle teacher assignment for new or updated classes
+        if hasattr(form, 'teacher_id') and form.teacher_id.data:
             teacher_id = form.teacher_id.data
-            db.session.flush()  # Make sure model has an ID
             
-            # Insert into teaching_table
-            db.session.execute(teaching_table.insert().values(
-                teacher_id=teacher_id, 
+            if is_created:
+                # For new classes, create the teaching relationship after we have an ID
+                db.session.flush()  # Make sure model has an ID
+                db.session.execute(teaching_table.insert().values(
+                    teacher_id=teacher_id, 
+                    class_id=model.id
+                ))
+            else:
+                # For existing classes, check if we need to update the teacher
+                existing_teaching = db.session.query(teaching_table).filter_by(class_id=model.id).first()
+                if existing_teaching:
+                    if str(existing_teaching.teacher_id) != teacher_id:
+                        # Update the teacher
+                        db.session.execute(
+                            teaching_table.update()
+                            .where(teaching_table.c.class_id == model.id)
+                            .values(teacher_id=teacher_id)
+                        )
+                else:
+                    # No teacher assigned yet, create the relationship
+                    db.session.execute(teaching_table.insert().values(
+                        teacher_id=teacher_id, 
+                        class_id=model.id
+                    ))
+        
+        # Handle student addition (works for both new and existing classes)
+        if hasattr(form, 'add_students') and form.add_students.data and form.add_students.data != '':
+            student_id = form.add_students.data
+            
+            # Check if student is already enrolled
+            existing_enrollment = db.session.query(enrollment_table).filter_by(
+                student_id=student_id, 
                 class_id=model.id
-            ))
+            ).first()
+            
+            if not existing_enrollment:
+                # Add the student
+                db.session.execute(enrollment_table.insert().values(
+                    student_id=student_id, 
+                    class_id=model.id
+                ))
+                model.students_enrolled += 1
+        
+        # Handle student removal (only applicable for existing classes)
+        if not is_created and hasattr(form, 'remove_students') and form.remove_students.data and form.remove_students.data != '':
+            student_id = form.remove_students.data
+            
+            # Verify student is enrolled
+            existing_enrollment = db.session.query(enrollment_table).filter_by(
+                student_id=student_id, 
+                class_id=model.id
+            ).first()
+            
+            if existing_enrollment:
+                # Remove the student
+                db.session.query(enrollment_table).filter_by(
+                    student_id=student_id, 
+                    class_id=model.id
+                ).delete()
+                model.students_enrolled -= 1
+
+class UserModelView(ModelView):
+    # Show these columns in the list view
+    column_list = ['username', 'role']
+    form_list = ['username']
+
+    
+    # Default form configuration
+    form_excluded_columns = ['password_hash']
+
+    # Add a custom form field for role
+    form_extra_fields = {
+        'role': SelectField('Role', choices=[('student', 'Student'), ('teacher', 'Teacher'), ('admin', 'Admin')]),
+        'password': PasswordField('Password')
+
+    }
+    
+
+    
+    def on_model_change(self, form, model, is_created):
+        # Only update password if provided
+        if hasattr(form, 'password') and form.password.data:
+            model.set_password(form.password.data)
+
+
+
 # Add views
-admin.add_view(ModelView(User, db.session))
+admin.add_view(UserModelView(User, db.session))
 admin.add_view(ClassModelView(Class, db.session, name='Classes'))
 
 
