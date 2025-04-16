@@ -1,10 +1,13 @@
-// src/components/ModeToggle.jsx
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 
 export default function ModeToggle({ currentMode, toggleMode }) {
     return (
-        <span className="text-2xl cursor-pointer select-none" onClick={toggleMode}>
+        <button
+            onClick={toggleMode}
+            className="text-xl p-2 rounded-full hover:bg-gray-700 dark:hover:bg-gray-700 transition"
+            title="Toggle Mode"
+        >
             {currentMode === "light" ? <MdDarkMode /> : <MdLightMode />}
-        </span>
+        </button>
     );
 }
