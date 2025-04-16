@@ -3,12 +3,9 @@ import react from '@vitejs/plugin-react'
 
 
 export default defineConfig({
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
   plugins: [react()],
-=======
-=======
->>>>>>> Stashed changes
+
   base: './', // ← VERY IMPORTANT so paths work when Flask serves it
   plugins: [react(), tailwindcss()],
   server: {
@@ -22,8 +19,5 @@ export default defineConfig({
   build: {
     outDir: 'dist', // this is default, but good to be explicit
   },
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 })
