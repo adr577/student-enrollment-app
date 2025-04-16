@@ -3,10 +3,10 @@ export default function EnrollCard({ cls, onEnroll, onUnenroll, isEnrolled, mode
     const isDark = mode === "dark";
 
     return (
-        <div className={`p-6 w-[21rem] max-h-[16rem] rounded-2xl shadow-md transition-all duration-300
-            ${isDark ? "bg-[#272727] text-white" : "bg-[#fdfdfd] text-[#0f0f0f]"}`}>
+        <div className={`p-6 w-full max-w-[21rem] h-[15rem] sm:h-[14rem] md:h-[15rem] lg:h-[16rem] xl:h-[16.5rem] rounded-2xl shadow-md transition-all duration-300
+    ${isDark ? "bg-[#272727] text-white" : "bg-[#fdfdfd] text-[#0f0f0f]"}`}>
 
-            <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-rose-500 to-pink-400 text-transparent bg-clip-text">
+            <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-yellow-400 via-yellow-600 to-black text-transparent bg-clip-text">
                 {cls.name}
             </h2>
 

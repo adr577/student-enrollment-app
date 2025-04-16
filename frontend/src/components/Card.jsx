@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function Card({ cls, mode, role }) {
-    const containerStyles = `p-6 w-[20rem] max-h-[12rem] rounded-xl shadow-md transition-all duration-200 ${mode === "light" ? "bg-[#fdfdfdf] text-[#0f0f0f]" : "bg-[#121212] text-white"
+    const containerStyles = `p-6 w-[20rem] h-[14rem] rounded-xl shadow-md transition-all duration-200 ${mode === "light" ? "bg-[#fdfdfdf] text-[#0f0f0f]" : "bg-[#121212] text-white"
         }`;
 
     const labelClass = "font-semibold";
@@ -23,9 +23,10 @@ export default function Card({ cls, mode, role }) {
                     </span>
                 </Link>
             ) : (
-                <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-rose-500 to-pink-400 text-transparent bg-clip-text">
-                    {cls.name}
-                </h2>
+                    <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-yellow-400 via-yellow-600 to-black text-transparent bg-clip-text">
+                        {cls.name}
+                    </h2>
+
             )}
 
             <div className="space-y-2 text-base leading-relaxed">
