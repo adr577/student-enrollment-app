@@ -17,7 +17,7 @@ import os
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 #NOTE: Look at the docker compose file for the database connection string. if you are on windows, and can't connect, change 0.0.0.0 to localhost
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@0.0.0.0:5555/mydatabase'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -27,9 +27,9 @@ admin = Admin(app, name='Class Enrollment Admin', template_mode='bootstrap4')
 
 
 app.config['LOGIN_DISABLED'] = False
-# Set a secret key for session management
-app.config['SECRET_KEY'] = os.urandom(24)
 
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///dev.db')
 
 def generate_password_hash(password):
     salt = bcrypt.gensalt()
